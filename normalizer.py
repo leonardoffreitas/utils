@@ -2,7 +2,6 @@ import re
 from unicodedata import normalize
 from html.entities import name2codepoint
 
-
 ##
 # Removes HTML or XML character references and entities from a text string.
 #
@@ -10,6 +9,8 @@ from html.entities import name2codepoint
 # @return The plain text, as a Unicode string, if necessary.
 # http://effbot.org/zone/re-sub.htm#unescape-html
 ##
+
+
 def unescape(text):
     def fixup(m):
         text = m.group(0)
@@ -28,8 +29,9 @@ def unescape(text):
                 text = chr(name2codepoint[text[1:-1]])
             except KeyError:
                 pass
-        return text # leave as is
+        return text  # leave as is
     return re.sub("&#?\w+;", fixup, text)
+
 
 class Normalizer():
 
@@ -41,15 +43,19 @@ class Normalizer():
 
     def normalize_accents(self, text, lowcase=True):
         normalized_text = text
-        normalized_text = normalize('NFKD', normalized_text).encode('ASCII','ignore').decode("utf-8")
-        if lowcase: return normalized_text.lower()
-        else: return normalized_text
+        normalized_text = normalize(
+            'NFKD', normalized_text
+        ).encode('ASCII', 'ignore').decode("utf-8")
+        if lowcase:
+            return normalized_text.lower()
+        else:
+            return normalized_text
 
     def normalize_text(self, text):
         return self.alfanum_only.sub(' ', self.normalize_accents(text))
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     text = 'Jogo de Furar e Parafusar 16 Peças R&ocirc;mulo - Black&amp;Decker'
     print('text: ', text)
 
