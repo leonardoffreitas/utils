@@ -1,17 +1,30 @@
 import re
 from unicodedata import normalize
+from html.parser import HTMLParser
 from html.entities import name2codepoint
 
-##
-# Removes HTML or XML character references and entities from a text string.
-#
-# @param text The HTML (or XML) source text.
-# @return The plain text, as a Unicode string, if necessary.
-# http://effbot.org/zone/re-sub.htm#unescape-html
-##
 
+#https://stackoverflow.com/questions/753052/strip-html-from-strings-in-python
+class MLStripper(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.reset()
+        self.strict = False
+        self.convert_charrefs= True
+        self.fed = []
+    def handle_data(self, d):
+        self.fed.append(d)
+    def get_data(self):
+        return ''.join(self.fed)
 
 def unescape(text):
+    '''
+    Removes HTML or XML character references and entities from a text string.
+
+    @param text The HTML (or XML) source text.
+    @return The plain text, as a Unicode string, if necessary.
+    http://effbot.org/zone/re-sub.htm#unescape-html
+    '''
     def fixup(m):
         text = m.group(0)
         if text[:2] == "&#":
@@ -41,6 +54,17 @@ class Normalizer():
     def translate_html_entities(self, text):
         return unescape(text)
 
+    #https://stackoverflow.com/questions/753052/strip-html-from-strings-in-python
+    def strip_tags(self, html):
+        s = MLStripper()
+        s.feed(html)
+        return s.get_data()
+
+    def normalize_html(self, text):
+        return self.strip_tags(
+            self.translate_html_entities(text)
+        )
+
     def normalize_accents(self, text, lowcase=True):
         normalized_text = text
         normalized_text = normalize(
@@ -65,6 +89,16 @@ if __name__ == "__main__":
 
     print('\n+normalize_accents')
     text = Normalizer().normalize_accents(text)
+    print('text: ', text)
+
+    print('\n+normalize_text')
+    text = Normalizer().normalize_text(text)
+    print('text: ', text)
+
+    text ='<a href="../../../../articles/w/a/d/Waddinxveen.html" title="Waddinxveen">Waddinxveen</a> | 79&#160;'
+    print('\ntext: ', text)
+    print('\n+normalize_html')
+    text = Normalizer().normalize_html(text)
     print('text: ', text)
 
     print('\n+normalize_text')
