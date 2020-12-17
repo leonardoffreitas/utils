@@ -1,0 +1,3 @@
+[submodule "normalizer"]
+	path = normalizer
+	url = git@github.com:leonardoffreitas/normalizer.git
